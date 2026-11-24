@@ -1,7 +1,7 @@
 package mmd
 
 // Flowchart renderer: parses the common flowchart subset of mermaid and
-// lays it out top-down (TD/TB only) with longest-path ranks and barycenter
+// lays it out vertically or horizontally with longest-path ranks and barycenter
 // ordering. Edges route through the channels between ranks as box-drawing
 // strokes; labels sit on the routing rows beside or on the line.
 
@@ -210,7 +210,7 @@ func decodeEntities(s string) string {
 					i += j
 					continue
 				default:
-					if n, err := strconv.Atoi(code); err == nil && n >= 0 && n <= unicode.MaxRune {
+					if n, err := strconv.Atoi(code); err == nil && n >= 0 && n <= unicode.MaxRune && !unicode.IsControl(rune(n)) {
 						b.WriteRune(rune(n))
 						i += j
 						continue
@@ -231,7 +231,7 @@ var linkTokens = []struct {
 }{
 	{"-.->", stDots, true},
 	{"-.-", stDots, false},
-	{"-->", stLight, true},
+	{arrowToken, stLight, true},
 	{"---", stLight, false},
 	{"==>", stDouble, true},
 	{"===", stDouble, false},
@@ -254,7 +254,7 @@ func (p *fscan) linkSpec() (string, stroke, bool, error) {
 		closers []string
 		st      stroke
 	}{
-		{"--", []string{"-->", "--", "---"}, stLight},
+		{"--", []string{arrowToken, "--", "---"}, stLight},
 		{"==", []string{"==>", "==", "==="}, stDouble},
 		{"-.", []string{".->", ".-"}, stDots},
 	} {
@@ -355,7 +355,7 @@ func parseFlowStmt(fc *flowChart, stmt string) error {
 	switch {
 	case strings.HasPrefix(lower, "subgraph "):
 		id, title := parseSubgraph(stmt[len("subgraph "):])
-		if id == "" {
+		if id == "" || fc.nodes[id] != nil {
 			return errUnsupported
 		}
 		g := &fGroup{id: id, title: title}

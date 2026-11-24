@@ -41,3 +41,25 @@ func TestGlamourRenderTextSizing(t *testing.T) {
 		t.Errorf("expected no leftover markers in pager output, got %q", out)
 	}
 }
+
+func TestPagerRendersSequenceDiagram(t *testing.T) {
+	m := newPagerModel(&commonModel{
+		cfg: Config{
+			GlamourEnabled:  true,
+			GlamourStyle:    "ascii",
+			GlamourMaxWidth: 80,
+		},
+		styles: newStyles(false),
+		width:  80,
+		height: 24,
+	})
+	m.currentDocument = markdown{Note: "example.md"}
+	m.setSize(80, 24)
+	out, err := glamourRender(m, "```mermaid\nsequenceDiagram\nA->>B: hello\n```\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(out, "hello") || !strings.Contains(out, "▶") || strings.Contains(out, "sequenceDiagram") {
+		t.Errorf("expected a sequence message in pager output, got %q", out)
+	}
+}

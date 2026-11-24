@@ -9,9 +9,18 @@ func TestRewrite(t *testing.T) {
 	flow := "```mermaid\nflowchart TD\n    A --> B\n```"
 	flowArt := "```\n ┌───┐\n │ A │\n └───┘\n   │\n   ▼\n ┌───┐\n │ B │\n └───┘\n```"
 
+	sample := "````markdown\n    ````\n" + flow + "\n````"
+	groupRef := "```mermaid\ngraph TD\nX --> G\nsubgraph G\nA --> B\nend\n```"
 	cases := []struct {
 		name, in, want string
 	}{
+		{
+			name: "rendered list item keeps its indentation",
+			in:   "- plan\n\n  " + strings.ReplaceAll(flow, "\n", "\n  "),
+			want: "- plan\n\n  " + strings.ReplaceAll(flowArt, "\n", "\n  "),
+		},
+		{name: "indented fence inside code sample", in: sample, want: sample},
+		{name: "forward reference to a subgraph", in: groupRef, want: groupRef},
 		{
 			name: "flowchart replaced by art",
 			in:   "before\n\n" + flow + "\n\nafter",

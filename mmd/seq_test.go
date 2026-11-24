@@ -16,8 +16,8 @@ func TestSeqRender(t *testing.T) {
 		name, src, want string
 	}{
 		{
-			name: "two messages filled and dotted",
-			src:  "sequenceDiagram\n    A->>B: hi\n    B-->>A: yo\n",
+			name: "activation shorthand preserves both lifelines",
+			src:  "sequenceDiagram\n    A->>+B: hi\n    B-->>-A: yo\n",
 			want: ` ┌───┐        ┌───┐
  │ A │        │ B │
  └───┘        └───┘

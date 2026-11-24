@@ -98,7 +98,7 @@ var seqArrows = []struct {
 	{"-x", stLight, headCross},
 	{"--)", stDots, headOpen},
 	{"-)", stLight, headOpen},
-	{"-->", stDots, headOpen},
+	{arrowToken, stDots, headOpen},
 	{"->", stLight, headOpen},
 }
 
@@ -178,11 +178,8 @@ func (sc *seqChart) parseStmt(stmt string, stack *[]frameState) error {
 			return errUnsupported
 		}
 		fr := (*stack)[len(*stack)-1]
-		if (fr.kw == "alt") != (lowTok == "else") && (fr.kw == "par") != (lowTok == "and") {
+		if lowTok == "else" && fr.kw != "alt" || lowTok == "and" && fr.kw != "par" {
 			return errUnsupported
-		}
-		if fr.kw != "alt" && fr.kw != "par" {
-			return errUnsupported // loop/opt/critical/break take no separator
 		}
 		sc.events = append(sc.events, seqEvent{kind: evFrameSep, label: strings.TrimSpace(rest)})
 		return nil
@@ -276,7 +273,10 @@ func (sc *seqChart) parseMessage(stmt string) error {
 	if colon < 0 {
 		return errUnsupported
 	}
-	toID := strings.TrimRight(strings.TrimSpace(rest[:colon]), "+-")
+	toID := strings.TrimSpace(rest[:colon])
+	if strings.HasPrefix(toID, "+") || strings.HasPrefix(toID, "-") {
+		toID = strings.TrimSpace(toID[1:])
+	}
 	label := strings.TrimSpace(rest[colon+1:])
 	if fromID == "" || toID == "" {
 		return errUnsupported

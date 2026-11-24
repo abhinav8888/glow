@@ -8,9 +8,9 @@
 //
 // becomes a plain fenced code block holding rendered unicode box-drawing
 // art. Diagrams that fail to parse or render — or that use unsupported
-// diagrams types and constructs — keep their original source, untouched.
+// diagram types and constructs — keep their original source, untouched.
 //
-// Supported: flowcharts (`graph`/`flowchart`, TD direction) with common
+// Supported: flowcharts (`graph`/`flowchart`, TD/TB/LR/RL directions) with common
 // node shapes and labelled/chained edges, and sequence diagrams with
 // participants, notes, self messages, and alt/loop/opt/par-style frames.
 package mmd
@@ -57,9 +57,9 @@ func (r *rewriter) run(s string) string {
 		}
 
 		prefix, body := splitBlockPrefix(line)
-		trim := strings.TrimLeft(body, " \t")
+		trim := strings.TrimLeft(body, " ")
 		// Indented code blocks hold no fences.
-		if r.fenceCh == 0 && (strings.HasPrefix(body, "    ") || strings.HasPrefix(body, "\t")) {
+		if len(body)-len(trim) > 3 {
 			flush(line, last)
 			i++
 			continue
@@ -94,13 +94,14 @@ func (r *rewriter) run(s string) string {
 // or collects mermaid body lines.
 func (r *rewriter) handleFenceLine(line string, last bool, flush func(string, bool)) {
 	content := r.stripPrefix(line)
-	if isFenceClose(strings.TrimLeft(content, " \t"), r.fenceCh, r.fenceLen) {
+	if isFenceClose(content, r.fenceCh, r.fenceLen) {
 		defer r.resetFence()
 		if !r.mermaid {
 			flush(line, last)
 			return
 		}
-		if art := renderBlock(r.body, r.prefix); art != "" {
+		indent := r.open[:strings.IndexByte(r.open, r.fenceCh)]
+		if art := renderBlock(r.body, indent); art != "" {
 			flush(art, last)
 			return
 		}
@@ -186,8 +187,7 @@ func renderDiagram(body []string) ([]string, error) {
 func stringOf(lines []string) string { return strings.Join(lines, "\n") }
 
 // splitBlockPrefix separates a blockquote prefix (e.g. "> ", "> > ") from
-// the content body. Mirrors texmd; mermaid blocks under list indentation
-// are left alone (their fences are passed through unchanged).
+// the content body.
 func splitBlockPrefix(s string) (string, string) {
 	i := 0
 	for {
@@ -236,7 +236,11 @@ func fenceOpenInfo(trim string) (byte, int, string, bool) {
 
 // isFenceClose reports a closing fence: a run of at least n of the fence
 // character followed only by whitespace.
-func isFenceClose(trim string, ch byte, n int) bool {
+func isFenceClose(line string, ch byte, n int) bool {
+	trim := strings.TrimLeft(line, " ")
+	if len(line)-len(trim) > 3 {
+		return false
+	}
 	k := 0
 	for k < len(trim) && trim[k] == ch {
 		k++

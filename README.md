@@ -188,46 +188,7 @@ glow --help
 Check out the [Glamour Style Section](https://github.com/charmbracelet/glamour/blob/master/styles/gallery/README.md)
 to find more styles. Or [make your own](https://github.com/charmbracelet/glamour/tree/master/styles)!
 
-## LaTeX math (fork feature)
-
-This fork renders TeX math in markdown as unicode terminal art, using a Go
-port of [TeXicode](https://github.com/dxddxx/TeXicode)'s layout engine
-(`tex/` package, MIT-licensed data tables).
-
-- Inline math `$...$` renders as one line, in place: `$\Delta = Y_j$` → `Δ=𝑌ⱼ`
-- Display math `$$...$$` renders as a block, e.g. `$$\frac{a}{b}$$` becomes
-
-  ```
-   a
-  ╶─╴
-   b
-  ```
-
-- Delimiters follow pandoc/GitHub rules: the opening `$` must be followed by
-  a non-space, the closing `$` must be preceded by a non-space and not
-  followed by a digit — so `$5.00 and $10.00` stays text.
-- Math inside code blocks and code spans is never touched.
-- Unsupported constructs degrade gracefully: unknown commands render
-  literally, and a formula that fails to parse is shown as-is.
-
-Supported: fractions, `\sqrt` (with degrees), `\sum`/`\prod`/`\int` and
-`\lim` (with centered limits in display mode), super/subscripts (real unicode
-script glyphs when they exist), `\left...\right` growing delimiters, fonts
-(`\text`, `\mathrm`, `\mathbf`, `\mathcal`, `\mathbb`, `\texttt`, ...),
-accents (`\hat`, `\bar`, `\vec`, `\tilde`, ...), `\overline`, `\underline`,
-`\boxed`, `\binom`, and the standard TeX symbol table (Greek, relations,
-arrows, operators). Not supported: environment blocks (`\begin{align}`,
-matrices), `\[...\]` and `\(...\)` delimiters, and `&` alignment.
-
-For legibility, `$$...$$` blocks render in "squash" mode: scripts render as
-baseline suffixes (`\text{KPI}_{\text{full}}` → `KPI_full`, `x_j^{\text{full}}`
-→ `𝑥ⱼᶠᵘˡˡ`) unless the script is itself multi-row, and TeX-style spacing is
-inserted around operators. Centered limits on `\sum`/`\prod`/`\lim` always
-stay piled above/below. The glyph-accurate TeXicode-compatible layout
-(including its piled scripts) remains available as `tex.Render(src, false)`;
-glow's display path uses `tex.RenderSquash`.
-
-## Mermaid diagrams (fork feature)
+## Mermaid diagrams
 
 This fork renders ```` ```mermaid ```` code blocks as unicode box-drawing
 art (`mmd/` package), laid out and drawn in pure Go:

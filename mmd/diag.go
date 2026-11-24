@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const arrowToken = "-->"
+
 type kind int
 
 const (

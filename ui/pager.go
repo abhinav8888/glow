@@ -11,7 +11,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/glamour/v2"
 	"charm.land/glow/v3/mmd"
-	"charm.land/glow/v3/texmd"
 	"charm.land/glow/v3/utils"
 	"charm.land/lipgloss/v2"
 	"github.com/atotto/clipboard"
@@ -382,7 +381,6 @@ func glamourRender(m pagerModel, markdown string) (string, error) {
 	if isCode {
 		markdown = utils.WrapCodeBlock(markdown, filepath.Ext(m.currentDocument.Note))
 	} else {
-		markdown = texmd.Rewrite(markdown)
 		markdown = mmd.Rewrite(markdown)
 	}
 

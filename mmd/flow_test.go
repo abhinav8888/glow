@@ -1,6 +1,9 @@
 package mmd
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func renderFlowArt(t *testing.T, src string) string {
 	t.Helper()
@@ -275,5 +278,12 @@ func TestFlowIgnoresStyling(t *testing.T) {
  └───┘`
 	if art != want {
 		t.Errorf("\ngot:\n%s\n\nwant:\n%s", art, want)
+	}
+}
+
+func TestFlowControlEntityStaysLiteral(t *testing.T) {
+	art := renderFlowArt(t, "flowchart TD\nA[Version #9;] --> B")
+	if !strings.Contains(art, "Version #9;") {
+		t.Errorf("expected literal entity in label, got %q", art)
 	}
 }
