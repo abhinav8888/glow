@@ -17,6 +17,8 @@ import (
 
 	"charm.land/glamour/v2"
 	"charm.land/glamour/v2/styles"
+	"charm.land/glow/v3/mmd"
+	"charm.land/glow/v3/texmd"
 	"charm.land/glow/v3/ui"
 	"charm.land/glow/v3/utils"
 	"github.com/caarlos0/env/v11"
@@ -304,6 +306,9 @@ func executeCLI(cmd *cobra.Command, src *source, w io.Writer) error {
 	ext := filepath.Ext(src.URL)
 	if isCode {
 		content = utils.WrapCodeBlock(string(b), ext)
+	} else {
+		content = texmd.Rewrite(content)
+		content = mmd.Rewrite(content)
 	}
 
 	out, err := r.Render(content)
